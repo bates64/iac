@@ -1,7 +1,7 @@
 const charcodesOf = str => [...str]
   .map(char => char.charCodeAt(0))
 
-module.exports = new Proxy({
+let operations = module.exports = new Proxy({
   will: 251, // Sender WILL do something
   wont: 251, // Sender WONT do something
 
@@ -11,15 +11,16 @@ module.exports = new Proxy({
   sb:   250, // Subnegotiation
 }, {
   get(target, key) {
-    if (key) key = key.toLowerCase()
+    if (key === 'valueOf') return operations
+    key = key.toString().toLowerCase()
 
     const iac = 255
     const se = 240
 
     const operation = target[key]
-    if (!operation) return undefined
+    if (typeof operation === 'undefined') return undefined
 
-    return new Proxy({
+    let options = new Proxy({
       binary: 0,        // Binary Transmission
       echo: 1,          // Echo
       suppress: 3,      // Suppress Go Ahead
@@ -33,10 +34,11 @@ module.exports = new Proxy({
       env: 36,          // Environment Variables
     }, {
       get(target, key) {
-        if (key) key = key.toLowerCase()
+        if (key === 'valueOf') return options
+        key = key.toString().toLowerCase()
 
         const option = target[key]
-        if (!option) return undefined
+        if (typeof option === 'undefined') return undefined
 
           if (operation === 250) {
             // Subnegotiation
@@ -62,5 +64,7 @@ module.exports = new Proxy({
           } else return new Buffer([ iac, operation, option ])
       }
     })
+
+    return options
   }
 })
