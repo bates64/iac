@@ -3,7 +3,7 @@ const charcodesOf = str => [...str]
 
 let operations = module.exports = new Proxy({
   will: 251, // Sender WILL do something
-  wont: 251, // Sender WONT do something
+  wont: 253, // Sender WONT do something
 
   do:   252, // Sender is saying DO something
   dont: 254, // Sender is saying DONT do something
