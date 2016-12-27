@@ -1,6 +1,6 @@
 {
   "name": "iac",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Interface to Telnet's Interpret As Command",
   "main": "iac.js",
   "repository": "https://github.com/nanalan/iac",
