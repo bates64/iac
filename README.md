@@ -21,8 +21,12 @@ const iac = require('iac')
 net
   .createServer(sock => {
     // IAC WILL ECHO
-
     sock.write(iac.will.echo)
+
+    // Handler for IAC SB NAWS
+    iac.on(sock, iac.sb.naws, (width, height) => {
+      console.log(`Remote terminal is ${width}x${height}`)
+    })
   })
   .listen(3000)
 ```
@@ -57,7 +61,7 @@ net
 - binary (Binary Transmission)
 - echo
 - suppress (Suppress Go Ahead)
-- status
+- status [not fully supported]
 - timing (Timing Mark)
 - terminal (Terminal Type)
 - naws (Negotiate About Window Size)
@@ -95,4 +99,31 @@ iac.sb.naws(80, 24)
 
 // IAC SB TERMINAL-TYPE 1 IAC SE
 iac.sb.terminal()
+```
+
+### On
+`iac` also provides support for **assigning handlers for socket data of specific IAC commands** on a socket with `iac.on(socket, command, handler)`. _command_ should be something like `iac.do.suppress` or `iac.sb.status`.
+
+e.g.
+```js
+const net = require('net')
+const iac = require('iac')
+
+net
+  .createServer(sock => {
+    // Do not use `sock.setEncoding` at any point if using `iac.on(sock)`
+
+    // Handlers...
+    iac
+      .on(sock, iac.will.naws, () => console.log(`Remote will NAWS`))
+      .on(sock, iac.wont.naws, () => console.log(`Remote wont NAWS`))
+      .on(sock, iac.sb.naws, (width, height) => {
+        // Note encoding is operation-specific
+        console.log(`Remote terminal size is ${width}x${height}`)
+      })
+
+    // Ask socket to negotiate window size
+    sock.write(iac.do.naws)
+  })
+  .listen(3000)
 ```
